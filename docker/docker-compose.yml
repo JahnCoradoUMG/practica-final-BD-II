@@ -1,0 +1,225 @@
+# DataOps Control Center — Stack completa (SCRUM-8)
+# Uso: docker compose -f docker/docker-compose.yml up -d
+# El DDL en docker/init/ se aplica solo en el primer arranque del volumen de PostgreSQL.
+
+name: dataops
+
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL — Base de metadatos (SCRUM-7 init scripts)
+  # ---------------------------------------------------------------------------
+  postgres-metadata:
+    image: postgres:16-alpine
+    container_name: dataops-postgres-metadata
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${METADATA_DB_USER:-dataops}
+      POSTGRES_PASSWORD: ${METADATA_DB_PASSWORD:-dataops_dev_change_me}
+      POSTGRES_DB: ${METADATA_DB_NAME:-dataops_metadata}
+    ports:
+      - "${METADATA_DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_metadata_data:/var/lib/postgresql/data
+      # Solo 001 y 002: el usuario/BD los crea la imagen oficial vía POSTGRES_* 
+      - ./init/001_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./init/002_seed.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${METADATA_DB_USER:-dataops} -d ${METADATA_DB_NAME:-dataops_metadata}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - dataops-net
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL — Motor de prueba para monitoreo (Módulos 1–6)
+  # ---------------------------------------------------------------------------
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: dataops-postgres-test
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: testdb
+    ports:
+      - "${POSTGRES_TEST_PORT:-5433}:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser -d testdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dataops-net
+
+  # ---------------------------------------------------------------------------
+  # Redis — Caché (Módulo 7)
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: dataops-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - dataops-net
+
+  # ---------------------------------------------------------------------------
+  # API — Node.js + Express + JWT + Swagger (SCRUM-9)
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: dataops-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      API_PORT: ${API_PORT:-3000}
+      METADATA_DB_HOST: postgres-metadata
+      METADATA_DB_PORT: 5432
+      METADATA_DB_NAME: ${METADATA_DB_NAME:-dataops_metadata}
+      METADATA_DB_USER: ${METADATA_DB_USER:-dataops}
+      METADATA_DB_PASSWORD: ${METADATA_DB_PASSWORD:-dataops_dev_change_me}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-in-production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      API_ADMIN_USER: ${API_ADMIN_USER:-admin}
+      API_ADMIN_PASSWORD: ${API_ADMIN_PASSWORD:-admin123}
+      CREDENTIALS_ENCRYPTION_KEY: ${CREDENTIALS_ENCRYPTION_KEY:-dev-encryption-key-32-chars-min!!}
+    ports:
+      - "${API_PORT:-3000}:3000"
+    depends_on:
+      postgres-metadata:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - dataops-net
+
+  # ---------------------------------------------------------------------------
+  # Frontend — React 18 + Vite (SCRUM-10)
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:3000
+    container_name: dataops-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - dataops-net
+
+  # ---------------------------------------------------------------------------
+  # Prometheus
+  # ---------------------------------------------------------------------------
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: dataops-postgres-exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: postgresql://${METADATA_DB_USER:-dataops}:${METADATA_DB_PASSWORD:-dataops_dev_change_me}@postgres-metadata:5432/${METADATA_DB_NAME:-dataops_metadata}?sslmode=disable
+    ports:
+      - "9187:9187"
+    depends_on:
+      postgres-metadata:
+        condition: service_healthy
+    networks:
+      - dataops-net
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: dataops-prometheus
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    depends_on:
+      - api
+      - alertmanager
+      - postgres-exporter
+    networks:
+      - dataops-net
+
+  # ---------------------------------------------------------------------------
+  # Grafana
+  # ---------------------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:11.2.2
+    container_name: dataops-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "${GRAFANA_PORT:-3001}:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+      - alertmanager
+    networks:
+      - dataops-net
+
+  # ---------------------------------------------------------------------------
+  # Alertmanager — integrado con Prometheus y webhook API (SCRUM-22)
+  # ---------------------------------------------------------------------------
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: dataops-alertmanager
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    depends_on:
+      - api
+    networks:
+      - dataops-net
+
+networks:
+  dataops-net:
+    driver: bridge
+
+volumes:
+  postgres_metadata_data:
+  postgres_test_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:

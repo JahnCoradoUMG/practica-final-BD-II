@@ -1,0 +1,38 @@
+groups:
+  - name: dataops-alerts
+    rules:
+      - alert: DataOpsApiDown
+        expr: up{job="dataops-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: API DataOps no responde
+          description: El target dataops-api no está disponible para Prometheus.
+
+      - alert: HighDatabaseCpu
+        expr: dataops_db_cpu_percent > 85
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: CPU elevada en motor {{ $labels.connection }}
+          description: CPU > 85% en conexión {{ $labels.connection }} ({{ $labels.motor }}).
+
+      - alert: HighReplicationLag
+        expr: dataops_replication_lag_seconds > 10
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: Lag de replicación crítico
+          description: Lag > 10s entre {{ $labels.primary }} y {{ $labels.replica }} ({{ $labels.scenario }}).
+
+      - alert: HighDatabaseConnections
+        expr: dataops_db_connections > 150
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Conexiones elevadas en {{ $labels.connection }}
+          description: Más de 150 conexiones activas reportadas por el exporter.

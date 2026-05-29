@@ -1,0 +1,65 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5 },
+              { "color": "red", "value": 10 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "targets": [
+        {
+          "expr": "dataops_replication_lag_seconds",
+          "legendFormat": "{{primary}} → {{replica}} ({{scenario}})",
+          "refId": "A"
+        }
+      ],
+      "title": "Lag de replicación (segundos)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 10 },
+      "id": 2,
+      "targets": [{ "expr": "dataops_up", "refId": "A" }],
+      "title": "API DataOps UP",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 6, "w": 16, "x": 8, "y": 10 },
+      "id": 3,
+      "targets": [{ "expr": "up{job=\"postgres-metadata\"}", "legendFormat": "postgres-exporter", "refId": "A" }],
+      "title": "Postgres Exporter UP",
+      "type": "stat"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["dataops", "replication"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "timezone": "browser",
+  "title": "DataOps - Replicación y Exporters",
+  "uid": "dataops-replication",
+  "version": 1
+}
