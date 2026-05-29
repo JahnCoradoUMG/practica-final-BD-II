@@ -1,0 +1,24 @@
+{
+  "scenarioId": 4,
+  "executedAt": "2026-05-27T22:18:36.603Z",
+  "dbId": 4,
+  "chain": [
+    {
+      "type": "FULL",
+      "status": "SUCCESS",
+      "remoteUrl": null
+    },
+    {
+      "type": "DIFF",
+      "status": "SUCCESS",
+      "remoteUrl": null
+    },
+    {
+      "type": "INC",
+      "status": "SUCCESS",
+      "remoteUrl": null
+    }
+  ],
+  "azureConfigured": false,
+  "result": "PASS"
+}

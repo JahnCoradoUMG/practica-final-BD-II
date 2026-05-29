@@ -1,0 +1,13 @@
+{
+  "scenarioId": 7,
+  "executedAt": "2026-05-27T22:18:36.708Z",
+  "cacheKey": "e2e-e2e-1779920316208",
+  "stats": {
+    "total": 18,
+    "hits": 16,
+    "misses": 2,
+    "avg_response_ms": "43.50",
+    "hit_ratio": 88.89
+  },
+  "result": "PASS"
+}

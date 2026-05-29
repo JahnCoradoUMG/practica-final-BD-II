@@ -1,0 +1,11 @@
+{
+  "scenarioId": 5,
+  "executedAt": "2026-05-27T22:18:36.613Z",
+  "scenario": "DROP TABLE simulado → restore desde último backup",
+  "dbId": 4,
+  "backupId": 7,
+  "restorePoint": "2026-05-27T22:18:36.587Z",
+  "rtoMinutes": 30.87,
+  "restoreSeconds": 1852,
+  "result": "PASS"
+}

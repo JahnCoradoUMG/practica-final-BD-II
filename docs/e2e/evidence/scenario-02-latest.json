@@ -1,0 +1,9 @@
+{
+  "scenarioId": 2,
+  "executedAt": "2026-05-27T22:18:36.422Z",
+  "queryId": "5",
+  "durationBeforeMs": 2317,
+  "durationAfterMs": 463,
+  "improvementPercent": 80,
+  "result": "PASS"
+}

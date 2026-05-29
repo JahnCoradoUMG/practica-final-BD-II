@@ -1,0 +1,80 @@
+{
+  "scenarioId": 3,
+  "executedAt": "2026-05-27T22:18:36.516Z",
+  "usersSimulated": 100,
+  "transactionsLogged": 100,
+  "deadlocksDetected": 6,
+  "sample": [
+    {
+      "id": "200",
+      "db_id": 4,
+      "session_id": "sess-1779920316431-100",
+      "operacion": "INSERT",
+      "inicio": "2026-05-27T22:18:36.431Z",
+      "fin": "2026-05-27T22:18:37.383Z",
+      "wait_time": 932,
+      "lock_type": "EXCLUSIVE",
+      "resolved": false,
+      "created_at": "2026-05-27T22:18:36.498Z",
+      "connection_name": "e2e-1779920316208-motor-a",
+      "motor": "POSTGRESQL"
+    },
+    {
+      "id": "163",
+      "db_id": 4,
+      "session_id": "sess-1779920316431-67",
+      "operacion": "INSERT",
+      "inicio": "2026-05-27T22:18:36.431Z",
+      "fin": "2026-05-27T22:18:36.900Z",
+      "wait_time": 449,
+      "lock_type": "SHARED",
+      "resolved": false,
+      "created_at": "2026-05-27T22:18:36.485Z",
+      "connection_name": "e2e-1779920316208-motor-a",
+      "motor": "POSTGRESQL"
+    },
+    {
+      "id": "183",
+      "db_id": 4,
+      "session_id": "sess-1779920316431-87",
+      "operacion": "DELETE",
+      "inicio": "2026-05-27T22:18:36.431Z",
+      "fin": "2026-05-27T22:18:36.945Z",
+      "wait_time": 494,
+      "lock_type": "SHARED",
+      "resolved": false,
+      "created_at": "2026-05-27T22:18:36.493Z",
+      "connection_name": "e2e-1779920316208-motor-a",
+      "motor": "POSTGRESQL"
+    },
+    {
+      "id": "144",
+      "db_id": 4,
+      "session_id": "sess-1779920316431-54",
+      "operacion": "SELECT",
+      "inicio": "2026-05-27T22:18:36.431Z",
+      "fin": "2026-05-27T22:18:36.769Z",
+      "wait_time": 318,
+      "lock_type": "SHARED",
+      "resolved": false,
+      "created_at": "2026-05-27T22:18:36.474Z",
+      "connection_name": "e2e-1779920316208-motor-a",
+      "motor": "POSTGRESQL"
+    },
+    {
+      "id": "150",
+      "db_id": 4,
+      "session_id": "sess-1779920316431-56",
+      "operacion": "INSERT",
+      "inicio": "2026-05-27T22:18:36.431Z",
+      "fin": "2026-05-27T22:18:36.458Z",
+      "wait_time": 7,
+      "lock_type": "SHARED",
+      "resolved": false,
+      "created_at": "2026-05-27T22:18:36.477Z",
+      "connection_name": "e2e-1779920316208-motor-a",
+      "motor": "POSTGRESQL"
+    }
+  ],
+  "result": "PASS"
+}

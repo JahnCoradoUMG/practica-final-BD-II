@@ -1,0 +1,39 @@
+{
+  "scenarioId": 6,
+  "executedAt": "2026-05-27T22:18:36.636Z",
+  "records": [
+    {
+      "id": "4",
+      "primary_db_id": 4,
+      "replica_db_id": 5,
+      "lag_seconds": "2.384",
+      "load_scenario": "NORMAL",
+      "captured_at": "2026-05-27T22:18:36.617Z",
+      "status": "ACCEPTABLE"
+    },
+    {
+      "id": "5",
+      "primary_db_id": 4,
+      "replica_db_id": 5,
+      "lag_seconds": "5.116",
+      "load_scenario": "MEDIUM",
+      "captured_at": "2026-05-27T22:18:36.621Z",
+      "status": "WARNING"
+    },
+    {
+      "id": "6",
+      "primary_db_id": 4,
+      "replica_db_id": 5,
+      "lag_seconds": "20.092",
+      "load_scenario": "HIGH",
+      "captured_at": "2026-05-27T22:18:36.625Z",
+      "status": "CRITICAL"
+    }
+  ],
+  "scenariosVerified": [
+    "HIGH",
+    "MEDIUM",
+    "NORMAL"
+  ],
+  "result": "PASS"
+}

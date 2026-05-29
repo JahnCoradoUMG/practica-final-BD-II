@@ -1,0 +1,65 @@
+{
+  "scenarioId": 1,
+  "executedAt": "2026-05-27T22:18:36.395Z",
+  "motorsRegistered": [
+    {
+      "id": 4,
+      "nombre": "e2e-1779920316208-motor-a"
+    },
+    {
+      "id": 5,
+      "nombre": "e2e-1779920316208-motor-b"
+    },
+    {
+      "id": 6,
+      "nombre": "e2e-1779920316208-motor-c"
+    }
+  ],
+  "connectivityTest": {
+    "ok": true,
+    "engine": "POSTGRESQL",
+    "message": "Conectividad PostgreSQL validada (pg)"
+  },
+  "healthMetrics": [
+    {
+      "db_id": 4,
+      "connection_name": "e2e-1779920316208-motor-a",
+      "motor": "POSTGRESQL",
+      "cpu": "21.00",
+      "memory": "6.00",
+      "connections": 3,
+      "locks": 6,
+      "deadlocks": 0,
+      "disk_usage": "7",
+      "health_status": "HEALTHY",
+      "capture_time": "2026-05-27T22:18:36.381Z"
+    },
+    {
+      "db_id": 5,
+      "connection_name": "e2e-1779920316208-motor-b",
+      "motor": "POSTGRESQL",
+      "cpu": "33.00",
+      "memory": "6.00",
+      "connections": 3,
+      "locks": 12,
+      "deadlocks": 0,
+      "disk_usage": "7",
+      "health_status": "WARNING",
+      "capture_time": "2026-05-27T22:18:36.370Z"
+    },
+    {
+      "db_id": 6,
+      "connection_name": "e2e-1779920316208-motor-c",
+      "motor": "POSTGRESQL",
+      "cpu": "41.00",
+      "memory": "6.00",
+      "connections": 3,
+      "locks": 16,
+      "deadlocks": 0,
+      "disk_usage": "7",
+      "health_status": "WARNING",
+      "capture_time": "2026-05-27T22:18:36.369Z"
+    }
+  ],
+  "result": "PASS"
+}
